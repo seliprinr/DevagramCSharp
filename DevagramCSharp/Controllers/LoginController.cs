@@ -1,4 +1,6 @@
 ﻿using DevagramCSharp.Dtos;
+using DevagramCSharp.Models;
+using DevagramCSharp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,7 +25,45 @@ namespace DevagramCSharp.Controllers
         {
             try
             {
-                throw new ArgumentException("Erro ao preencher os dados");
+                if(!String.IsNullOrEmpty(loginrequisicao.Senha) && !String.IsNullOrEmpty(loginrequisicao.Email) &&
+                    !String.IsNullOrWhiteSpace(loginrequisicao.Senha) && String.IsNullOrWhiteSpace(loginrequisicao.Email))
+                {
+                    string email = "rseliprin@gmail.com";
+                    string senha = "Senha@1234";
+
+                    if(loginrequisicao.Email == email && loginrequisicao.Senha == senha)
+                    {
+                        Usuario usuario = new Usuario()
+                        {
+                            Email = loginrequisicao.Email,
+                            Id = 12,
+                            Nome = "Rodrigo Seliprin"
+                        };
+
+                        return Ok(new LoginRespostaDto()
+                        {
+                            Email = usuario.Email,
+                            Nome = usuario.Nome,
+                            Token = TokenService.CriarToken(usuario)
+                        });
+                    }
+                    else
+                    {
+                        return BadRequest(new ErrorRespostaDto()
+                        {
+                            Descricao = "Email ou senha inválido!",
+                            Status = StatusCodes.Status400BadRequest
+                        });
+                    }
+                }
+                else
+                {
+                    return BadRequest(new ErrorRespostaDto()
+                    {
+                        Descricao = "Usuário não preencheu os campos de login corretamente",
+                        Status = StatusCodes.Status400BadRequest
+                    });
+                }
             }
             catch (Exception e)
             {
